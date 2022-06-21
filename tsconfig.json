@@ -1,0 +1,16 @@
+﻿{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": false,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["esnext"],
+    "types": ["node"]
+  },
+	"include": ["index.ts", "utils/**/*"]
+}
