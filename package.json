@@ -1,12 +1,35 @@
 {
   "name": "create-shiftlimits",
-  "version": "0.0.1",
-  "main": "index.js",
-  "bin": {
-    "create-shiftlimits": "cli.js"
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "Jeff Schofield <jeff@jeffschofield.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShiftLimits/create-shiftlimits.git"
   },
+  "bugs": {
+    "url": "https://github.com/ShiftLimits/create-shiftlimits/issues",
+    "email": "jeff@jeffschofield.com"
+  },
+  "keywords": [
+    "vue",
+    "tailwind",
+    "ui",
+    "library"
+  ],
+  "bin": {
+    "create-shiftlimits": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "CHANGELOG.md"
+  ],
   "scripts": {
-    "build": "tsup index.ts cli.js"
+    "build": "tsup index.ts"
+  },
+  "gitHooks": {
+    "commit-msg": "esno scripts/verify-commit.ts"
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
@@ -19,6 +42,8 @@
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.0.0",
     "@types/prompts": "^2.0.14",
-    "tsup": "^6.1.2"
+    "esno": "^0.16.3",
+    "tsup": "^6.1.2",
+    "yorkie": "^2.0.0"
   }
 }
