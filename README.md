@@ -32,7 +32,8 @@ Construct a Vue and Tailwind CSS website, powered by Vite. All features are opti
 - Routing with `vue-router`
 - Simple Application Core – Layout system with pages (includes routing)
   - Based on Nuxt structure, uses Vite imports to read layout directory
-- ShiftLimits UI – A set a pre-made components and plugins for Vite, Vue and Tailwind for rapid development
+- Color Suite – An in-browser editor for your website's color palette
+- ShiftLimits UI – A set a pre-made components and plugins for Vite, Vue and Tailwind for rapid development (includes Color Suite)
   - Choose which features of SLUI to install from several presets or customize from a list
 - Vitest – Extremely fast Unit testing
 - Yorkie – Verify that Git commits adhere to the conventional commit format with git hooks
