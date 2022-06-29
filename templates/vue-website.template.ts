@@ -198,6 +198,9 @@ export default defineTemplate<TemplatePrompts>({
 		if (useColorSuite && !useSLUI) {
 			vite_config_imports.push({ from: 'tailwindcss-color-suite', imports: ['colorSuitePlugin'] })
 			vite_config_plugins.push('colorSuitePlugin()')
+		} else if (useSLUI) {
+			vite_config_imports.push({ from: '@shiftlimits/ui/vite', main: 'slui' })
+			vite_config_plugins.push('slui()')
 		}
 
 		const vite_config_file =
