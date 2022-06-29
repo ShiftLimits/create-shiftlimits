@@ -1,4 +1,4 @@
-﻿import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
+import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
 import { resolve } from 'path'
 import { defineTemplate, renderTemplate } from '../utils'
 
@@ -157,6 +157,7 @@ export default defineTemplate<TemplatePrompts>({
 		// Add configs
 		if (useRouter) render('config/router')
 		if (useSLUI) render('config/slui')
+		if ((useColorSuite && !useSLUI)) render('config/color-suite')
 		if (useVitest) render('config/vitest')
 		if (useYorkie) render('config/yorkie')
 
