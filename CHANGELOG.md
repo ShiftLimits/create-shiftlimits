@@ -6,4 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Nothing yet.
+Initial release!
+
+### Added
+- Add core template builder which begins project scaffolding
+- Add `vue-website` template for creating a Vue and Tailwind CSS website powered by Vite
