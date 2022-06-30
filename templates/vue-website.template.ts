@@ -1,4 +1,4 @@
-import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
+﻿import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
 import { resolve } from 'path'
 import { defineTemplate, renderTemplate } from '../utils'
 
@@ -32,6 +32,7 @@ interface TemplatePrompts {
 	useSLUI:boolean
 	sluiPreset:keyof typeof SLUIPresets
 	sluiFeatures:(keyof typeof SLUIFeatures)[]
+	sluiColorSuite:boolean
 	useColorSuite:boolean
 	useVitest:boolean
 	useYorkie:boolean
@@ -87,6 +88,14 @@ export default defineTemplate<TemplatePrompts>({
 				choices: Object.entries(SLUIFeatures).map(([key, { description }]) =>({ title: key, value: key, description, selected: key == 'recommended' }))
 			},
 			{
+				name: 'sluiColorSuite',
+				type: (prev, answers) => (answers.useSLUI && !isFeatureFlagsUsed ? 'toggle' : null),
+				message: 'Use your own color palette? Adds Color Suite editor.',
+				initial: false,
+				active: 'Yes',
+				inactive: 'No'
+			},
+			{
 				name: 'useColorSuite',
 				type: (prev, answers) => (answers.useSLUI || isFeatureFlagsUsed ? null : 'toggle'),
 				message: 'Add Color Suite?',
@@ -119,6 +128,7 @@ export default defineTemplate<TemplatePrompts>({
 			useSLUI = argv.slui ?? true,
 			sluiPreset = argv.slui ? 'recommended' : undefined,
 			sluiFeatures = [],
+			sluiColorSuite = argv.slui ? false : undefined,
 			useColorSuite = useSLUI ?? argv.colorSuite,
 			useVitest = argv.vitest ?? true,
 			useYorkie = argv.verifyCommits ?? true,
@@ -157,7 +167,7 @@ export default defineTemplate<TemplatePrompts>({
 		// Add configs
 		if (useRouter) render('config/router')
 		if (useSLUI) render('config/slui')
-		if ((useColorSuite && !useSLUI)) render('config/color-suite')
+		if ((useColorSuite && !useSLUI) || (useSLUI && sluiColorSuite)) render('config/color-suite')
 		if (useVitest) render('config/vitest')
 		if (useYorkie) render('config/yorkie')
 
@@ -187,7 +197,7 @@ export default defineTemplate<TemplatePrompts>({
 		extend: {}
 	},
 	plugins: [${
-		useSLUI ? `\n\t\trequire('@shiftlimits/ui/tailwind')\n\t` : ''
+		useSLUI ? `\n\t\trequire('@shiftlimits/ui/tailwind')${sluiColorSuite?`({ colors: require('./colors.config.js') })`:''}\n\t` : ''
 	}]
 }`
 		writeFileSync(resolve(root, 'tailwind.config.js'), tailwind_config_file)
@@ -201,7 +211,7 @@ export default defineTemplate<TemplatePrompts>({
 			vite_config_plugins.push('colorSuitePlugin()')
 		} else if (useSLUI) {
 			vite_config_imports.push({ from: '@shiftlimits/ui/vite', main: 'slui' })
-			vite_config_plugins.push('slui()')
+			vite_config_plugins.push(`slui(${sluiColorSuite ? `{ colorSuite: true }` : ''})`)
 		}
 
 		const vite_config_file =
