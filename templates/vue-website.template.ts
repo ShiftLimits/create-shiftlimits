@@ -24,6 +24,9 @@ const SLUIFeatures = {
 	'TextLink': {
 		description: 'Basic styled inline text link.'
 	},
+	'SvgIcon': {
+		description: 'Displays SVG icons from the assets folder.'
+	},
 }
 
 interface TemplatePrompts {
@@ -140,7 +143,7 @@ export default defineTemplate<TemplatePrompts>({
 					sluiFeatures.push(...['TextLink'])
 					break
 				case 'recommended':
-					sluiFeatures.push(...['TextLink'])
+					sluiFeatures.push(...['TextLink', 'SvgIcon'])
 					break
 				case 'everything':
 					sluiFeatures.push(...Object.keys(SLUIFeatures))
@@ -247,6 +250,7 @@ export default defineConfig({
 		if (useSLUI) {
 			for (let feature of sluiFeatures) {
 				if (feature == 'TextLink') main_file_component_imports.push('TextLink')
+				if (feature == 'SvgIcon') main_file_component_imports.push('SvgIcon')
 			}
 
 			if (main_file_component_imports.length) main_file_imports.push({ from: '@shiftlimits/ui', imports: main_file_component_imports })
