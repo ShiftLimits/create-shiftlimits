@@ -1,4 +1,4 @@
-﻿# ShiftLimits Starter
+﻿# ShiftLimits Create
 
 A scaffolding tool for quickly creating opinionated starter projects with `npm init shiftlimits`!
 
