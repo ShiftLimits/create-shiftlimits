@@ -173,7 +173,7 @@ export default defineTemplate<TemplatePrompts>({
 		// Write config files
 		// Tailwind config
 		const tailwind_config_content_files = ["./index.html", "./src/**/*.{js,ts,vue}"]
-		if (useSLUI) tailwind_config_content_files.push("./node_modules/@shiftlimits/ui/**/*.{js,ts,vue}")
+		if (useSLUI) tailwind_config_content_files.push("./node_modules/@shiftlimits/ui/dist/**/*.{js,ts,vue}")
 
 		const tailwind_config_file = ((useColorSuite && !useSLUI) ? `const { tailwindColors } = require('tailwindcss-color-suite')
 
