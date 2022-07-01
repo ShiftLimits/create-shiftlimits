@@ -2,8 +2,8 @@ import { createRouter, createMemoryHistory, createWebHistory, RouteRecordRaw } f
 
 export function createAppRouter() {
 	const route_children = new Map<string, RouteRecordRaw[]>()
-	const routes = Object.entries(import.meta.glob('./pages/**/*.vue')).reduce<RouteRecordRaw[]>((routes, [page_path, component]) => {
-		page_path = page_path.replace(/^\.\/pages|.vue$/g, '')
+	const routes = Object.entries(import.meta.glob('./pages/**/*.{vue,md}')).reduce<RouteRecordRaw[]>((routes, [page_path, component]) => {
+		page_path = page_path.replace(/^\.\/pages|.(vue|md)$/g, '')
 
 		let path = page_path.replace(/\/_([^/]*)/g, '/:$1')
 		if (path.slice(-5) == 'index') path = path.slice(0, -5)

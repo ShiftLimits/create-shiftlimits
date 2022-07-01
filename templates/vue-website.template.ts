@@ -33,6 +33,7 @@ interface TemplatePrompts {
 	useSSR:boolean
 	useAppCore:boolean
 	useRouter:boolean
+	useMarkdown:boolean
 	useSLUI:boolean
 	sluiPreset:keyof typeof SLUIPresets
 	sluiFeatures:(keyof typeof SLUIFeatures)[]
@@ -73,6 +74,14 @@ export default defineTemplate<TemplatePrompts>({
 				name: 'useRouter',
 				type: (prev, answers) => (answers.useAppCore || isFeatureFlagsUsed ? null : 'toggle'),
 				message: 'Add router?',
+				initial: true,
+				active: 'Yes',
+				inactive: 'No'
+			},
+			{
+				name: 'useMarkdown',
+				type: (prev, answers) => (isFeatureFlagsUsed ? null : 'toggle'),
+				message: 'Add support for Markdown pages and components?',
 				initial: true,
 				active: 'Yes',
 				inactive: 'No'
@@ -138,6 +147,7 @@ export default defineTemplate<TemplatePrompts>({
 			useSSR = argv.ssr ?? true,
 			useAppCore = argv.core ?? true,
 			useRouter = useAppCore ?? argv.router ?? true,
+			useMarkdown = argv.markdown ?? false,
 			useSLUI = argv.slui ?? true,
 			sluiPreset = argv.slui ? 'recommended' : undefined,
 			sluiFeatures = [],
@@ -180,6 +190,7 @@ export default defineTemplate<TemplatePrompts>({
 		// Add configs
 		if (useSSR) render('config/ssr')
 		if (useRouter) render('config/router')
+		if (useMarkdown) render('config/markdown')
 		if (useSLUI) render('config/slui')
 		if ((useColorSuite && !useSLUI) || (useSLUI && sluiColorSuite)) render('config/color-suite')
 		if (useVitest) render('config/vitest')
@@ -220,6 +231,19 @@ export default defineTemplate<TemplatePrompts>({
 		// Vite config
 		const vite_config_imports:{from:string, main?:string, imports?:string[]}[] = [{ from: '@vitejs/plugin-vue', main: 'vue' }]
 		const vite_config_plugins = ['vue()']
+
+		if (useMarkdown) {
+			vite_config_imports.push({ from: 'vite-plugin-vue-markdown', main: 'markdown' })
+			vite_config_plugins.push(
+		`markdown({
+			include: ['./src/pages/**/*.md'],
+			headEnabled: true
+		})`)
+			vite_config_plugins[0] =
+		`vue({
+			include: [/\.vue$/, /\.md$/]
+		})`
+		}
 
 		if (useColorSuite && !useSLUI) {
 			vite_config_imports.push({ from: 'tailwindcss-color-suite', imports: ['colorSuitePlugin'] })

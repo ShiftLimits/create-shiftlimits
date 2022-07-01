@@ -11,8 +11,8 @@ const template = readFileSync(toAbsolute('dist/static/index.html'), 'utf-8')
 async function init() {
 	const manifest = require(toAbsolute('dist/static/ssr-manifest.json'))
 
-	const routes = globSync('src/pages/**/*.vue').map((file) => {
-		const path = file.replace(/^src\/pages|\.vue$/g, '')
+	const routes = globSync('src/pages/**/*.{vue,md}').map((file) => {
+		const path = file.replace(/^src\/pages|\.(vue|md)$/g, '')
 		const [_, ...path_parts] = path.split('/')
 		const name = path_parts.pop()
 		return {
