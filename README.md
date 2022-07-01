@@ -30,6 +30,7 @@ Construct a Vue and Tailwind CSS website, powered by Vite. All features are opti
 
 ##### Features
 - Routing with `vue-router`
+- Server Side Rendering & Static Site Generation support
 - Simple Application Core – Layout system with pages (includes routing)
   - Based on Nuxt structure, uses Vite imports to read layout directory
 - Color Suite – An in-browser editor for your website's color palette
