@@ -1,4 +1,4 @@
-﻿import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
+import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
 import { resolve } from 'path'
 import { defineTemplate, renderTemplate } from '../utils'
 
@@ -235,7 +235,7 @@ export default defineConfig({
 `	const head = createHead()
 	app.use(head)`
 		]
-		const main_file_returns = ['app']
+		const main_file_returns = ['app', 'head']
 
 		if (useRouter) {
 			main_file_imports.push({ from: './router', imports: ['createAppRouter'] })
