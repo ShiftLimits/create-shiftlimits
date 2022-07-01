@@ -1,4 +1,4 @@
-import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
+﻿import {  emptyDirSync, ensureDirSync, existsSync, writeFileSync } from 'fs-extra'
 import { resolve } from 'path'
 import { defineTemplate, renderTemplate } from '../utils'
 
@@ -30,6 +30,7 @@ const SLUIFeatures = {
 }
 
 interface TemplatePrompts {
+	useSSR:boolean
 	useAppCore:boolean
 	useRouter:boolean
 	useSLUI:boolean
@@ -52,6 +53,14 @@ export default defineTemplate<TemplatePrompts>({
 		) == 'boolean'
 
 		return [
+			{
+				name: 'useSSR',
+				type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+				message: 'Add Server Side Rendering and Static Site Generation?',
+				initial: true,
+				active: 'Yes',
+				inactive: 'No'
+			},
 			{
 				name: 'useAppCore',
 				type: () => (isFeatureFlagsUsed ? null : 'toggle'),
@@ -126,6 +135,7 @@ export default defineTemplate<TemplatePrompts>({
 	},
 	async render({ result, root, packageName, shouldOverwrite, argv }) {
 		const {
+			useSSR = argv.ssr ?? true,
 			useAppCore = argv.core ?? true,
 			useRouter = useAppCore ?? argv.router ?? true,
 			useSLUI = argv.slui ?? true,
@@ -168,6 +178,7 @@ export default defineTemplate<TemplatePrompts>({
 		render('base')
 
 		// Add configs
+		if (useSSR) render('config/ssr')
 		if (useRouter) render('config/router')
 		if (useSLUI) render('config/slui')
 		if ((useColorSuite && !useSLUI) || (useSLUI && sluiColorSuite)) render('config/color-suite')
@@ -180,6 +191,7 @@ export default defineTemplate<TemplatePrompts>({
 
 		// Code
 		render('code/base')
+		if (useSSR) render('code/ssr')
 		if (useRouter) render('code/router')
 		if (useAppCore) render('code/core')
 
@@ -257,7 +269,7 @@ export default defineConfig({
 		}
 
 		const main_file =
-`import { createApp as createVueApp } from 'vue'
+`import { ${ useSSR ? 'createSSRApp' : 'createApp' } as createVueApp } from 'vue'
 import App from './App.vue'
 
 ${main_file_imports.map(({from, imports}) => `import { ${imports.join(', ')} } from '${from}'`).join('\n')}
@@ -281,5 +293,77 @@ createApp().then(({ ${main_file_returns.join(', ')} }) => {
 	})` :`app.mount('#app')` }
 })`
 		writeFileSync(resolve(root, 'src/entry-client.ts'), client_entry_file)
+
+		if (useSSR) {
+			const node_entry_file =
+`import { renderToString } from '@vue/server-renderer'
+import { renderHeadToString } from '@vueuse/head'
+import { basename } from 'path'
+import { createApp } from './main'
+
+export async function render(url:string, manifest:any) {
+	const { ${main_file_returns.join(', ')} } = await createApp()
+${ useRouter ? `
+	router.push(url)
+	await router.isReady()\n` : '' }
+	let ctx:{ modules?:any } = {}
+
+	const html = await renderToString(app, ctx)
+	const { headTags, htmlAttrs, bodyAttrs } = renderHeadToString(head)
+
+	if (manifest) {
+		const preloadLinks = renderPreloadLinks(ctx.modules, manifest)
+		return [headTags, htmlAttrs, bodyAttrs, html, preloadLinks]
+	}
+
+	return [headTags, htmlAttrs, bodyAttrs, html]
+}
+
+function renderPreloadLinks(modules, manifest) {
+	let links = ''
+	const seen = new Set()
+	modules.forEach((id) => {
+		const files = manifest[id]
+		if (files) {
+			files.forEach((file) => {
+				if (!seen.has(file)) {
+					seen.add(file)
+					const filename = basename(file)
+					if (manifest[filename]) {
+						for (const depFile of manifest[filename]) {
+							links += renderPreloadLink(depFile)
+							seen.add(depFile)
+						}
+					}
+					links += renderPreloadLink(file)
+				}
+			})
+		}
+	})
+	return links
+}
+
+function renderPreloadLink(file:string) {
+	if (file.endsWith('.js')) {
+		return \`<link rel="modulepreload" crossorigin href="\${file}">\`
+	} else if (file.endsWith('.css')) {
+		return \`<link rel="stylesheet" href="\${file}">\`
+	} else if (file.endsWith('.woff')) {
+		return \` <link rel="preload" href="\${file}" as="font" type="font/woff" crossorigin>\`
+	} else if (file.endsWith('.woff2')) {
+		return \` <link rel="preload" href="\${file}" as="font" type="font/woff2" crossorigin>\`
+	} else if (file.endsWith('.gif')) {
+		return \` <link rel="preload" href="\${file}" as="image" type="image/gif">\`
+	} else if (file.endsWith('.jpg') || file.endsWith('.jpeg')) {
+		return \` <link rel="preload" href="\${file}" as="image" type="image/jpeg">\`
+	} else if (file.endsWith('.png')) {
+		return \` <link rel="preload" href="\${file}" as="image" type="image/png">\`
+	} else {
+		// TODO
+		return ''
+	}
+}`
+			writeFileSync(resolve(root, 'src/entry-node.ts'), node_entry_file)
+		}
 	}
 })
